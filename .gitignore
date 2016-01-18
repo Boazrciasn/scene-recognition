@@ -16,7 +16,7 @@
 /.qmake.stash
 *.pro.user
 *.pro.user.*
-*.txt.user.*
+*.txt.user
 *.qbs.user
 *.qbs.user.*
 *.moc
@@ -33,3 +33,5 @@ Makefile*
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+
+*~
