@@ -32,32 +32,32 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
 
 
 
-            this->dictionarysize = 300;
-            this->StepSize = 10;
-            this->StepSizeString = std::to_string(this->StepSize);
-            this->DictionarySizeString = std::to_string(this->dictionarysize);
-            this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
-            cv::Mat Label; // Label Dump
+    this->dictionarysize = 300;
+    this->StepSize = 10;
+    this->StepSizeString = std::to_string(this->StepSize);
+    this->DictionarySizeString = std::to_string(this->dictionarysize);
+    this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
+    cv::Mat Label; // Label Dump
 
-            this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
-            this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
+    this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
+    this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
 
-            std::cout<<"creating"<<this->FileName<<"\n "<<this->TestFileName<<"\n "<<this->TrainFileName <<std::endl;
+    std::cout<<"creating"<<this->FileName<<"\n "<<this->TestFileName<<"\n "<<this->TrainFileName <<std::endl;
 
-            BagOfSIFT::loadDataFile(this->TrainFileName,this->dataTrainDescriptor,Label);
-            BagOfSIFT::loadDataFile(this->TestFileName,this->dataTestDescriptor,Label);
-            //Store the vocabulary
-            cv::FileStorage fs (this->FileName,cv::FileStorage::READ);
-            fs["vocabulary"] >>this->dictionary;
-            fs.release();
+    BagOfSIFT::loadDataFile(this->TrainFileName,this->dataTrainDescriptor,Label);
+    BagOfSIFT::loadDataFile(this->TestFileName,this->dataTestDescriptor,Label);
+    //Store the vocabulary
+    cv::FileStorage fs (this->FileName,cv::FileStorage::READ);
+    fs["vocabulary"] >>this->dictionary;
+    fs.release();
 
-            if(!this->dataTestDescriptor.data || !this->dataTestDescriptor.data) {
-                std::cout<<"There is not a descriptor data... Creating.."<<std::endl;
-                BagOfSIFT::Extract_BOF_features();
-            }
-            std::cout<<"Dictionary size : "<<this->dictionary.rows<<"x"<<this->dictionary.cols<<std::endl;
-            std::cout<<"Training Descriptor Size : "<<this->dataTrainDescriptor.rows<<"x"<<this->dataTrainDescriptor.cols<<std::endl;
-            std::cout<<"Test Descriptor Size : "<<this->dataTestDescriptor.rows<<"x"<<this->dataTestDescriptor.cols<<std::endl;
+    if(!this->dataTestDescriptor.data || !this->dataTestDescriptor.data) {
+        std::cout<<"There is not a descriptor data... Creating.."<<std::endl;
+        BagOfSIFT::Extract_BOF_features();
+    }
+    std::cout<<"Dictionary size : "<<this->dictionary.rows<<"x"<<this->dictionary.cols<<std::endl;
+    std::cout<<"Training Descriptor Size : "<<this->dataTrainDescriptor.rows<<"x"<<this->dataTrainDescriptor.cols<<std::endl;
+    std::cout<<"Test Descriptor Size : "<<this->dataTestDescriptor.rows<<"x"<<this->dataTestDescriptor.cols<<std::endl;
 }
 
 void BagOfSIFT::Extract_BOF_features(){
@@ -120,15 +120,31 @@ void BagOfSIFT::Extract_BOF_features(){
             std::cerr << "Problem loading image!!!" << std::endl;
             continue;
         }
-        for (int j = StepSize/2; j <Img.rows ; j+=StepSize/2) {
-            for (int k = StepSize/2 ; k < Img.cols ; k+=StepSize/2) {
+
+        // Here we have to seperate into 4 quadrants and extract descriptors for each quadrant
+        // We might collect Keypoints for each quadrant seperately in this for loop
+
+        //Keypoint Storage for each quadrant
+        int quadrants = 4;
+        std::vector<cv::KeyPoint> quadrantKeyPoints[quadrants];
+        int width = Img.cols;
+        int height = Img.rows;
+
+        for (int j = StepSize/2; j <height ; j+=StepSize/2) {
+            for (int k = StepSize/2 ; k < width ; k+=StepSize/2) {
                 KeyPoint = cv::KeyPoint(cv::Point2f(j,k),this->keypointsize);
                 KeyPoints.push_back(KeyPoint);
+
+                // add to corresponding quadrant
+                // floor(k/(width*2/quadrants)) + floor(j/(height*2/quadrants)) + 1
+                quadrantKeyPoints[0].push_back(KeyPoint);
             }
 
         }
         bowDE->compute(Img,KeyPoints,BoWImageDescriptors);
         KeyPoints.clear();
+
+        // if you put this here, shouldn't you add label accordngly?
         if (BoWImageDescriptors.empty())
             continue;
 
