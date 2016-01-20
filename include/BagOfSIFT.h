@@ -17,6 +17,8 @@ Muhammet Pakyürek	S008284 Department of Electrical and Electronics
 #include "opencv2/xfeatures2d.hpp"
 #include "ImageReader.h"
 
+#define NUM_OF_QUADRANTS  4
+
 class BagOfSIFT {
 
 public:
@@ -33,6 +35,10 @@ public:
     void saveDataFile(const std::string &file_name, cv::Mat& dataDescriptor, cv::Mat& label);
     void loadDataFile(const std::string &file_name, cv::Mat& dataDescriptor, cv::Mat& label);
 
+
+    // NM
+    std::vector<cv::Mat1f> dataTestQuadrantDescriptor;
+    std::vector<cv::Mat1f> dataTrainQuadrantDescriptor;
 
 private:
 

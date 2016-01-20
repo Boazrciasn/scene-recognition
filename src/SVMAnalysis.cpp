@@ -31,6 +31,10 @@ SVMAnalysis::SVMAnalysis(BagOfSIFT *BagOfSIFT) {
     this->trainLabels = BagOfSIFT->TrainLabels;
     this->testLabels = BagOfSIFT->TestLabels;
 
+    // NM
+    this->dataTestQuadrantDescriptor = BagOfSIFT->dataTestQuadrantDescriptor;
+    this->dataTrainQuadrantDescriptor = BagOfSIFT->dataTrainQuadrantDescriptor;
+
     //Training Data type check
     int nType = this->dataTrainDescriptor.depth();
     if(nType != CV_32F)
@@ -45,6 +49,22 @@ SVMAnalysis::SVMAnalysis(BagOfSIFT *BagOfSIFT) {
         this->trainLabels.convertTo(this->trainLabels, CV_32S);
         this->trainLabels.convertTo(this->trainLabels, CV_32S);
     }
+
+    // NM get quadrants
+    for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
+        dataTestQuadrantDescriptor[i].convertTo(dataTestQuadrantDescriptor[i], CV_32F);
+        dataTrainQuadrantDescriptor[i].convertTo(dataTrainQuadrantDescriptor[i], CV_32F);
+    }
+
+    // NM Add all Data
+    cv::Mat tmpTestLabels = testLabels;
+    for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
+//        dataTrainDescriptor.push_back(dataTrainQuadrantDescriptor[i]);
+        dataTestDescriptor.push_back(dataTestQuadrantDescriptor[i]);
+        testLabels.push_back(tmpTestLabels);
+    }
+
+
 
 
     SVMAnalysis::SVMTrainer();
@@ -71,7 +91,8 @@ void SVMAnalysis::Evaluation() {
     }
 
     Evaluator Evaluator(this->Consensus,this->testLabels,"SVM");
-    std::cout<<"classification rate : "<<count/this->testLabels.rows*100<< "%"<<std::endl;
+//    std::cout<<"classification rate : "<<count/this->testLabels.rows*100<< "%"<<std::endl;
+    std::cout<<"classification rate : "<<Evaluator.getAccuracy()<< "%"<<std::endl;
 
 }
 

@@ -12,12 +12,13 @@ class Evaluator {
 
 public:
     Evaluator(cv::Mat Response, cv::Mat GroundTruth, std::string FileName);
-
+    inline const float getAccuracy(){return accuracy;}
 
     ~Evaluator();
 
 private:
-
+    void computeAccuracy(cv::Mat Response, cv::Mat GroundTruth);
+    float accuracy;
 };
 
 

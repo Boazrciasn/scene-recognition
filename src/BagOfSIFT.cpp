@@ -30,6 +30,10 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
     this->TestLabels = DataSet->Test_Labels;
     this->TrainLabels = DataSet->Train_Labels;
 
+    // NM
+    this->dataTestQuadrantDescriptor =  std::vector<cv::Mat1f>(NUM_OF_QUADRANTS);
+    this->dataTrainQuadrantDescriptor =  std::vector<cv::Mat1f>(NUM_OF_QUADRANTS);
+
 
 
     this->dictionarysize = 300;
@@ -121,23 +125,21 @@ void BagOfSIFT::Extract_BOF_features(){
             continue;
         }
 
-        // Here we have to seperate into 4 quadrants and extract descriptors for each quadrant
-        // We might collect Keypoints for each quadrant seperately in this for loop
+        // NM Here we have to seperate into 4 quadrants and extract descriptors for each quadrant
+        // NM We might collect Keypoints for each quadrant seperately in this for loop
 
-        //Keypoint Storage for each quadrant
-        int quadrants = 4;
-        std::vector<cv::KeyPoint> quadrantKeyPoints[quadrants];
+        // NM Keypoint Storage for each quadrant
+        std::vector<std::vector<cv::KeyPoint>> quadrantKeyPoints(NUM_OF_QUADRANTS);
         int width = Img.cols;
         int height = Img.rows;
 
-        for (int j = StepSize/2; j <height ; j+=StepSize/2) {
+        for (int j = StepSize/2; j < height ; j+=StepSize/2) {
             for (int k = StepSize/2 ; k < width ; k+=StepSize/2) {
                 KeyPoint = cv::KeyPoint(cv::Point2f(j,k),this->keypointsize);
                 KeyPoints.push_back(KeyPoint);
 
-                // add to corresponding quadrant
-                // floor(k/(width*2/quadrants)) + floor(j/(height*2/quadrants)) + 1
-                quadrantKeyPoints[0].push_back(KeyPoint);
+                // NM add to corresponding quadrant
+                quadrantKeyPoints[floor(2*j/height)*2 + floor(2*k/width)].push_back(KeyPoint);
             }
 
         }
@@ -149,6 +151,19 @@ void BagOfSIFT::Extract_BOF_features(){
             continue;
 
         this->dataTrainDescriptor.push_back(BoWImageDescriptors);
+
+        // NM compute descriptors
+        for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
+            bowDE->compute(Img,quadrantKeyPoints[i],BoWImageDescriptors);
+            quadrantKeyPoints[i].clear();
+
+            // if you put this here, shouldn't you add label accordngly?
+            if (BoWImageDescriptors.empty())
+                continue;
+
+            this->dataTrainQuadrantDescriptor[i].push_back(BoWImageDescriptors);
+        }
+
     }
 
 
@@ -166,10 +181,18 @@ void BagOfSIFT::Extract_BOF_features(){
             std::cerr << "\r Problem loading image!!!" << std::endl;
             continue;
         }
-        for (int j = StepSize/2; j <Img.rows ; j+=StepSize/2) {
-            for (int k = StepSize/2 ; k < Img.cols ; k+=StepSize/2) {
+
+        std::vector<std::vector<cv::KeyPoint>> quadrantKeyPoints(NUM_OF_QUADRANTS);
+        int height = Img.rows;
+        int width = Img.cols;
+
+        for (int j = StepSize/2; j < height ; j+=StepSize/2) {
+            for (int k = StepSize/2 ; k < width ; k+=StepSize/2) {
                 KeyPoint = cv::KeyPoint(cv::Point2f(j,k),this->keypointsize);
                 KeyPoints.push_back(KeyPoint);
+
+                // NM add to corresponding quadrant
+                quadrantKeyPoints[floor(2*j/height)*2 + floor(2*k/width)].push_back(KeyPoint);
             }
 
         }
@@ -179,6 +202,18 @@ void BagOfSIFT::Extract_BOF_features(){
         if (BoWImageDescriptors.empty())
             continue;
         this->dataTestDescriptor.push_back(BoWImageDescriptors);
+
+        // NM compute descriptors
+        for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
+            bowDE->compute(Img,quadrantKeyPoints[i],BoWImageDescriptors);
+            quadrantKeyPoints[i].clear();
+
+            // if you put this here, shouldn't you add label accordngly?
+            if (BoWImageDescriptors.empty())
+                continue;
+
+            this->dataTestQuadrantDescriptor[i].push_back(BoWImageDescriptors);
+        }
     }
 
 

@@ -64,6 +64,47 @@ cv::imwrite(FileName,ConfusionMatrix);
 
 }
 
+void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
+{
+    // 5 NUM_OF_QUADRANTS + 1 (one is qhole image itself)
+    int numOfTestInputs = GroundTruth.rows/(5);
+    cv::Mat GroundTruthLabels = GroundTruth(cv::Range(0,numOfTestInputs),cv::Range::all());
+    cv::Mat ResponseLabels;
+
+    for (int i = 0; i < numOfTestInputs; i++) {
+        int count[15];
+        for (int j = i; j < GroundTruth.rows; j += numOfTestInputs) {
+            count[Response.at<int>(j,0)]++;
+        }
+
+        // major vote count
+        int max = count[0];
+        int index = 0;
+
+        for (int j = 1; j < 15; j++) {
+            if(max < count[j])
+            {
+                max = count[j];
+                index = j;
+            }
+        }
+
+        // checkpoint
+        if(max < 2)
+            ResponseLabels.push_back(Response.at<int>(i,0));
+        else
+            ResponseLabels.push_back(index);
+
+    }
+
+    ResponseLabels.convertTo(ResponseLabels, CV_32S);
+    GroundTruthLabels.convertTo(GroundTruthLabels, CV_32S);
+    // create 0,1 Mat (0: false, 1: true)
+    cv::Mat out = (ResponseLabels == GroundTruthLabels)/255;
+    // calculate accuracy
+    this->accuracy = sum(out)[0]/out.rows;
+}
+
 Evaluator::~Evaluator() {
 
 }
