@@ -36,7 +36,7 @@ private:
     std::string types_class_folder[NUM_OF_TYPES] = {"test/", "train/"};
     std::string class_train_folders[NUM_OF_CLASS] = {"train/bedroom/","train/Coast/","train/Forest/","train/Highway/",
                                                "train/industrial/","train/Insidecity/","train/kitchen/",
-                                               "train/livingRoom/","train/Mountain/","train/Office/",
+                                               "train/livingroom/","train/Mountain/","train/Office/",
                                                "train/OpenCountry/","train/store/","train/Street/",
                                                "train/Suburb/","train/TallBuilding/"};
 
@@ -46,7 +46,7 @@ private:
                                                      "test/opencountry/","test/store/","test/street/",
                                                      "test/suburb/","test/tallbuilding/"};
 
-    std::string folder = "/Users/barisozcan/ClionProjects/PRJ3/project3-data/"; //fixme : Make a generic path!
+    std::string folder = "../../project3-data/";
 };
 
 
