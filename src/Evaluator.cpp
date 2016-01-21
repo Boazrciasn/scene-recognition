@@ -15,6 +15,7 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
     cv::Mat truepositives;
     cv::Mat falsepositives;
     cv::Mat falsenegatives;
+
     int tp;
     int fp = 0;
     int fn = 0;
@@ -58,8 +59,10 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
     std::cout<< " FALSE POSITIVES : " << falsepositives.t()<<std::endl;
     std::cout<< " FALSE NEGATIVES : " << falsenegatives.t()<<std::endl;
 
-cv::normalize(ConfusionMatrixT,ConfusionMatrix,0,255,CV_MINMAX,CV_32FC1);
-cv::imwrite(FileName,ConfusionMatrix);
+    cv::normalize(ConfusionMatrixT,ConfusionMatrix,0,255,CV_MINMAX,CV_32FC1);
+    cv::imwrite(FileName,ConfusionMatrix);
+    //Evaluator::computeAccuracy(Response,GroundTruth);
+
 
 
 }
@@ -103,6 +106,8 @@ void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
     cv::Mat out = (ResponseLabels == GroundTruthLabels)/255;
     // calculate accuracy
     this->accuracy = sum(out)[0]/out.rows;
+
+    std::cout<< " ACCURACY : " << this->accuracy << std::endl;
 }
 
 Evaluator::~Evaluator() {
