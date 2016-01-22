@@ -61,7 +61,8 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
 
     cv::normalize(ConfusionMatrixT,ConfusionMatrix,0,255,CV_MINMAX,CV_32FC1);
     cv::imwrite(FileName,ConfusionMatrix);
-    //Evaluator::computeAccuracy(Response,GroundTruth);
+    std::cout<<"debug"<<std::endl;
+//    Evaluator::computeAccuracy(Response,GroundTruth);
 
 
 
@@ -70,6 +71,7 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
 void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
 {
     // 5 NUM_OF_QUADRANTS + 1 (one is qhole image itself)
+    std::cout<<"debug"<<std::endl;
     int numOfTestInputs = GroundTruth.rows/(5);
     cv::Mat GroundTruthLabels = GroundTruth(cv::Range(0,numOfTestInputs),cv::Range::all());
     cv::Mat ResponseLabels;

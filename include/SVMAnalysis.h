@@ -36,8 +36,8 @@ private:
     cv::Mat1i Consensus; // major vote container
 
     // NM
-    std::vector<cv::Mat1f> dataTestQuadrantDescriptor;
-    std::vector<cv::Mat1f> dataTrainQuadrantDescriptor;
+//    std::vector<cv::Mat1f> dataTestQuadrantDescriptor;
+//    std::vector<cv::Mat1f> dataTrainQuadrantDescriptor;
 
 
     int getMinIndex(cv::Mat1f mat1);

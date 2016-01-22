@@ -43,8 +43,8 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
     this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
     cv::Mat Label; // Label Dump
 
-    this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
-    this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
+    this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString +  ".yml"; //"_" + std::to_string(NUM_OF_QUADRANTS) + ".yml";
+    this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml"; //"_" + std::to_string(NUM_OF_QUADRANTS) +".yml";
 
     std::cout<<"creating"<<this->FileName<<"\n "<<this->TestFileName<<"\n "<<this->TrainFileName <<std::endl;
 
@@ -143,14 +143,6 @@ void BagOfSIFT::Extract_BOF_features(){
             }
 
         }
-        bowDE->compute(Img,KeyPoints,BoWImageDescriptors);
-        KeyPoints.clear();
-
-        // if you put this here, shouldn't you add label accordngly?
-        if (BoWImageDescriptors.empty())
-            continue;
-
-        this->dataTrainDescriptor.push_back(BoWImageDescriptors);
 
         // NM compute descriptors
         for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
@@ -164,6 +156,14 @@ void BagOfSIFT::Extract_BOF_features(){
             this->dataTrainQuadrantDescriptor[i].push_back(BoWImageDescriptors);
         }
 
+        bowDE->compute(Img,KeyPoints,BoWImageDescriptors);
+        KeyPoints.clear();
+
+        // if you put this here, shouldn't you add label accordngly?
+        if (BoWImageDescriptors.empty())
+            continue;
+
+        this->dataTrainDescriptor.push_back(BoWImageDescriptors);
     }
 
 
@@ -196,12 +196,7 @@ void BagOfSIFT::Extract_BOF_features(){
             }
 
         }
-        std::cout<<"\r Computing "<<percentage<<"% done" ;
-        bowDE->compute(Img,KeyPoints,BoWImageDescriptors);
-        KeyPoints.clear();
-        if (BoWImageDescriptors.empty())
-            continue;
-        this->dataTestDescriptor.push_back(BoWImageDescriptors);
+
 
         // NM compute descriptors
         for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
@@ -214,10 +209,27 @@ void BagOfSIFT::Extract_BOF_features(){
 
             this->dataTestQuadrantDescriptor[i].push_back(BoWImageDescriptors);
         }
+
+        std::cout<<"\r Computing "<<percentage<<"% done" ;
+        bowDE->compute(Img,KeyPoints,BoWImageDescriptors);
+        KeyPoints.clear();
+        if (BoWImageDescriptors.empty())
+            continue;
+        this->dataTestDescriptor.push_back(BoWImageDescriptors);
     }
 
 
     //Save descriptors
+    cv::Mat tmpTrainLabels = this->TrainLabels;
+    cv::Mat tmpTestLabel = this->TestLabels;
+    for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
+//        this->dataTestDescriptor.push_back(this->dataTestQuadrantDescriptor[i]);
+//        this->TestLabels.push_back(tmpTestLabel);
+
+//        this->dataTrainDescriptor.push_back(this->dataTrainQuadrantDescriptor[i]);
+//        this->TrainLabels.push_back(tmpTrainLabels);
+    }
+
     saveDataFile(this->TrainFileName,dataTrainDescriptor,this->TrainLabels);
     saveDataFile(this->TestFileName,dataTestDescriptor,this->TestLabels);
     std::cout<<"\n saved "<< this->TestFileName<< "and"<< this->TrainFileName<<std::endl;
