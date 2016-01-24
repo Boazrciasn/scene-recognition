@@ -60,11 +60,33 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
     std::cout<< " FALSE NEGATIVES : " << falsenegatives.t()<<std::endl;
 
     cv::normalize(ConfusionMatrixT,ConfusionMatrix,0,255,CV_MINMAX,CV_32FC1);
+
     cv::imwrite(FileName,ConfusionMatrix);
-    Evaluator::computeAccuracy(Response,GroundTruth);
+//    Evaluator::computeAccuracy(Response,GroundTruth);
 
+    cv::Mat SVM_ConfusionMat;
+    computeConfusionMat(GroundTruth,Response,SVM_ConfusionMat);
+//    std::cout<<SVM_ConfusionMat<<std::endl;
+    cv::namedWindow("SVM confusion mat",CV_WINDOW_NORMAL);
+    cv::imshow("SVM confusion mat",SVM_ConfusionMat);
+    cv::waitKey(0);
 
+}
 
+void Evaluator::computeConfusionMat(cv::Mat &expected, cv::Mat &predicted, cv::Mat &confMat)
+{
+    confMat = cv::Mat::zeros(15,15, CV_32FC1);
+
+    std::cout<<expected.rows<<" "<<expected.cols<<std::endl;
+    for (int i = 0; i < expected.rows; i++) {
+        confMat.at<float>(expected.at<int>(i,0),predicted.at<int>(i,0))++;
+    }
+
+//    std::cout<<expected.t()<<std::endl;
+//    std::cout<<predicted.t()<<std::endl;
+
+    for (int i = 0; i < confMat.rows; i++)
+        confMat.row(i) /= sum(confMat.row(i))[0];
 }
 
 void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
@@ -98,7 +120,7 @@ void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
         }
 
         // checkpoint
-        if(max < 4)
+        if(max < 5)
             ResponseLabels.push_back(Response.at<int>(i,0));
         else
             ResponseLabels.push_back(index);

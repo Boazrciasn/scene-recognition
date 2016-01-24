@@ -36,8 +36,8 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
 
 
 
-    this->dictionarysize = 50;
-    this->StepSize = 20;
+    this->dictionarysize = 300;
+    this->StepSize = 10;
     this->StepSizeString = std::to_string(this->StepSize);
     this->DictionarySizeString = std::to_string(this->dictionarysize);
     this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";

@@ -18,6 +18,7 @@ public:
 
 private:
     void computeAccuracy(cv::Mat Response, cv::Mat GroundTruth);
+    void computeConfusionMat(cv::Mat &expected, cv::Mat &predicted, cv::Mat &confMat);
     float accuracy;
 };
 

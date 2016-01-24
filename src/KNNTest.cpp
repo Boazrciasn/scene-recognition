@@ -37,13 +37,19 @@ KNNTest::KNNTest(BagOfSIFT *BagOfSIFT) {
     cv::Mat tmpTrainLabels = BagOfSIFT->TrainLabels;
     cv::Mat tmpTestLabels = BagOfSIFT->TestLabels;
 
-    int trainWholeImgPart = tmpDataTrainDescriptor.rows/5;
-    int testWholeImgPart = tmpDataTestDescriptor.rows/5;
+    int trainWholeImgPart = tmpDataTrainDescriptor.rows/17;
+    int testWholeImgPart = tmpDataTestDescriptor.rows/17;
+    int startTrn = 0;//trainWholeImgPart;
+    int startTst = 0;//testWholeImgPart;
 
-    this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(0,testWholeImgPart),cv::Range::all());
-    this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(0,trainWholeImgPart),cv::Range::all());
-    this->trainLabels = tmpTrainLabels(cv::Range(0,trainWholeImgPart),cv::Range::all());
-    this->testLabels = tmpTestLabels(cv::Range(0,testWholeImgPart),cv::Range::all());
+    std::cout<<"trainWholeImgPart "<<trainWholeImgPart<<std::endl;
+    std::cout<<"trainLabels "<<BagOfSIFT->dataTestDescriptor.rows<<std::endl;
+
+
+    this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
+    this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+    this->trainLabels = tmpTrainLabels(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+    this->testLabels = tmpTestLabels(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
 
 
     cv::Mat responses;
