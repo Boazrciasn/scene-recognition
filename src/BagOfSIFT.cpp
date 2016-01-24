@@ -36,20 +36,27 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
 
 
 
-    this->dictionarysize = 300;
-    this->StepSize = 10;
+    this->dictionarysize = 50;
+    this->StepSize = 20;
     this->StepSizeString = std::to_string(this->StepSize);
     this->DictionarySizeString = std::to_string(this->dictionarysize);
     this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
     cv::Mat Label; // Label Dump
 
-    this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString +  ".yml"; //"_" + std::to_string(NUM_OF_QUADRANTS) + ".yml";
-    this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + ".yml"; //"_" + std::to_string(NUM_OF_QUADRANTS) +".yml";
+    this->TestFileName = "Test_"+ this->DictionarySizeString +"_"+ this->StepSizeString + "_" + std::to_string(NUM_OF_QUADRANTS) + ".yml";
+    this->TrainFileName = "Train_"+ this->DictionarySizeString +"_"+ this->StepSizeString + "_" + std::to_string(NUM_OF_QUADRANTS) +".yml";
 
     std::cout<<"creating"<<this->FileName<<"\n "<<this->TestFileName<<"\n "<<this->TrainFileName <<std::endl;
 
-    BagOfSIFT::loadDataFile(this->TrainFileName,this->dataTrainDescriptor,Label);
-    BagOfSIFT::loadDataFile(this->TestFileName,this->dataTestDescriptor,Label);
+    BagOfSIFT::loadDataFile(this->TrainFileName,this->dataTrainDescriptor,this->TrainLabels);
+    BagOfSIFT::loadDataFile(this->TestFileName,this->dataTestDescriptor,this->TestLabels);
+
+    for (int i = 0; i < NUM_OF_QUADRANTS + 1; i++) {
+        this->TestLabels.push_back(DataSet->Test_Labels);
+        this->TrainLabels.push_back(DataSet->Train_Labels);
+    }
+
+
     //Store the vocabulary
     cv::FileStorage fs (this->FileName,cv::FileStorage::READ);
     fs["vocabulary"] >>this->dictionary;
@@ -139,7 +146,7 @@ void BagOfSIFT::Extract_BOF_features(){
                 KeyPoints.push_back(KeyPoint);
 
                 // NM add to corresponding quadrant
-                quadrantKeyPoints[floor(2*j/height)*2 + floor(2*k/width)].push_back(KeyPoint);
+                quadrantKeyPoints[floor(std::sqrt(NUM_OF_QUADRANTS)*j/height)*std::sqrt(NUM_OF_QUADRANTS) + floor(std::sqrt(NUM_OF_QUADRANTS)*k/width)].push_back(KeyPoint);
             }
 
         }
@@ -192,7 +199,7 @@ void BagOfSIFT::Extract_BOF_features(){
                 KeyPoints.push_back(KeyPoint);
 
                 // NM add to corresponding quadrant
-                quadrantKeyPoints[floor(2*j/height)*2 + floor(2*k/width)].push_back(KeyPoint);
+                quadrantKeyPoints[floor(std::sqrt(NUM_OF_QUADRANTS)*j/height)*std::sqrt(NUM_OF_QUADRANTS) + floor(std::sqrt(NUM_OF_QUADRANTS)*k/width)].push_back(KeyPoint);
             }
 
         }
@@ -223,11 +230,11 @@ void BagOfSIFT::Extract_BOF_features(){
     cv::Mat tmpTrainLabels = this->TrainLabels;
     cv::Mat tmpTestLabel = this->TestLabels;
     for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
-//        this->dataTestDescriptor.push_back(this->dataTestQuadrantDescriptor[i]);
-//        this->TestLabels.push_back(tmpTestLabel);
+        this->dataTestDescriptor.push_back(this->dataTestQuadrantDescriptor[i]);
+        this->TestLabels.push_back(tmpTestLabel);
 
-//        this->dataTrainDescriptor.push_back(this->dataTrainQuadrantDescriptor[i]);
-//        this->TrainLabels.push_back(tmpTrainLabels);
+        this->dataTrainDescriptor.push_back(this->dataTrainQuadrantDescriptor[i]);
+        this->TrainLabels.push_back(tmpTrainLabels);
     }
 
     saveDataFile(this->TrainFileName,dataTrainDescriptor,this->TrainLabels);

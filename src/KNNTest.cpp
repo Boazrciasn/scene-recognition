@@ -27,10 +27,25 @@ KNNTest::KNNTest(BagOfSIFT *BagOfSIFT) {
     std::cout<<"     "<<std::endl;
 
 
-    this->dataTestDescriptor = BagOfSIFT->dataTestDescriptor;
-    this->dataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
-    this->trainLabels = BagOfSIFT->TrainLabels;
-    this->testLabels = BagOfSIFT->TestLabels;
+//    this->dataTestDescriptor = BagOfSIFT->dataTestDescriptor;
+//    this->dataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
+//    this->trainLabels = BagOfSIFT->TrainLabels;
+//    this->testLabels = BagOfSIFT->TestLabels;
+
+    cv::Mat tmpDataTestDescriptor = BagOfSIFT->dataTestDescriptor;
+    cv::Mat tmpDataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
+    cv::Mat tmpTrainLabels = BagOfSIFT->TrainLabels;
+    cv::Mat tmpTestLabels = BagOfSIFT->TestLabels;
+
+    int trainWholeImgPart = tmpDataTrainDescriptor.rows/5;
+    int testWholeImgPart = tmpDataTestDescriptor.rows/5;
+
+    this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(0,testWholeImgPart),cv::Range::all());
+    this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(0,trainWholeImgPart),cv::Range::all());
+    this->trainLabels = tmpTrainLabels(cv::Range(0,trainWholeImgPart),cv::Range::all());
+    this->testLabels = tmpTestLabels(cv::Range(0,testWholeImgPart),cv::Range::all());
+
+
     cv::Mat responses;
     std::cout<<"KNN Training Descriptor Size : "<<this->dataTrainDescriptor.rows<<"x"<<this->dataTrainDescriptor.cols<<std::endl;
     std::cout<<"KNN Descriptor Size : "<<this->dataTestDescriptor.rows<<"x"<<this->dataTestDescriptor.cols<<std::endl;

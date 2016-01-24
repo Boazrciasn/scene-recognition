@@ -27,13 +27,29 @@ SVMAnalysis::SVMAnalysis(BagOfSIFT *BagOfSIFT) {
 
 
     this->dataTestDescriptor = BagOfSIFT->dataTestDescriptor;
-    this->dataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
-    this->trainLabels = BagOfSIFT->TrainLabels;
+//    this->dataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
+//    this->trainLabels = BagOfSIFT->TrainLabels;
     this->testLabels = BagOfSIFT->TestLabels;
 
-    // NM
-//    this->dataTestQuadrantDescriptor = BagOfSIFT->dataTestQuadrantDescriptor;
-//    this->dataTrainQuadrantDescriptor = BagOfSIFT->dataTrainQuadrantDescriptor;
+    cv::Mat tmpDataTestDescriptor = BagOfSIFT->dataTestDescriptor;
+    cv::Mat tmpDataTrainDescriptor = BagOfSIFT->dataTrainDescriptor;
+    cv::Mat tmpTrainLabels = BagOfSIFT->TrainLabels;
+    cv::Mat tmpTestLabels = BagOfSIFT->TestLabels;
+
+    int trainWholeImgPart = tmpDataTrainDescriptor.rows/17;
+    int testWholeImgPart = tmpDataTestDescriptor.rows/17;
+    int startTrn = 0;//trainWholeImgPart;
+    int startTst = testWholeImgPart;
+
+    std::cout<<"trainWholeImgPart "<<trainWholeImgPart<<std::endl;
+    std::cout<<"trainLabels "<<BagOfSIFT->dataTestDescriptor.rows<<std::endl;
+
+
+//    this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(startTst,startTst + 4*testWholeImgPart),cv::Range::all());
+    this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+    this->trainLabels = tmpTrainLabels(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+//    this->testLabels = tmpTestLabels(cv::Range(startTst,startTst + 4*testWholeImgPart),cv::Range::all());
+
 
     //Training Data type check
     int nType = this->dataTrainDescriptor.depth();

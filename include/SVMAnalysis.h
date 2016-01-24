@@ -35,10 +35,6 @@ private:
     cv::Mat testLabels;
     cv::Mat1i Consensus; // major vote container
 
-    // NM
-//    std::vector<cv::Mat1f> dataTestQuadrantDescriptor;
-//    std::vector<cv::Mat1f> dataTrainQuadrantDescriptor;
-
 
     int getMinIndex(cv::Mat1f mat1);
     cv::Mat SVMDataCreate1vsALL(int nClass); //changes labels according to given range considering 1vsALL configuration

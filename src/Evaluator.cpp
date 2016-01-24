@@ -61,8 +61,7 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
 
     cv::normalize(ConfusionMatrixT,ConfusionMatrix,0,255,CV_MINMAX,CV_32FC1);
     cv::imwrite(FileName,ConfusionMatrix);
-    std::cout<<"debug"<<std::endl;
-//    Evaluator::computeAccuracy(Response,GroundTruth);
+    Evaluator::computeAccuracy(Response,GroundTruth);
 
 
 
@@ -71,16 +70,20 @@ Evaluator::Evaluator(cv::Mat Response, cv::Mat GroundTruth,std::string FileName)
 void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
 {
     // 5 NUM_OF_QUADRANTS + 1 (one is qhole image itself)
-    std::cout<<"debug"<<std::endl;
-    int numOfTestInputs = GroundTruth.rows/(5);
+    std::cout<<"\n computeAccuracy \n"<<std::endl;
+    int numOfTestInputs = GroundTruth.rows/17;
     cv::Mat GroundTruthLabels = GroundTruth(cv::Range(0,numOfTestInputs),cv::Range::all());
     cv::Mat ResponseLabels;
 
     for (int i = 0; i < numOfTestInputs; i++) {
-        int count[15];
-        for (int j = i; j < GroundTruth.rows; j += numOfTestInputs) {
-            count[Response.at<int>(j,0)]++;
+        int count[15] = {};
+        for (int j = i; j < Response.rows; j += numOfTestInputs) {
+            count[Response.at<int>(j)]++;
         }
+
+//        for(auto j: count)
+//            std::cout<<j<<"  ";
+//        std::cout<<"  "<<std::endl;
 
         // major vote count
         int max = count[0];
@@ -95,7 +98,7 @@ void Evaluator::computeAccuracy(cv::Mat Response, cv::Mat GroundTruth)
         }
 
         // checkpoint
-        if(max < 2)
+        if(max < 4)
             ResponseLabels.push_back(Response.at<int>(i,0));
         else
             ResponseLabels.push_back(index);

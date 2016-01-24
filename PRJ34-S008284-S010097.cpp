@@ -17,6 +17,7 @@ using namespace std;
 
 int main() {
     cout << "Hello, World!" << endl;
+    std::cout<<std::sqrt(16);
 
     ImageReader ImageRead;
 
@@ -24,6 +25,7 @@ int main() {
     BagOfSIFT BagOfSIFT(&ImageRead);
 //    KNNTest KNNTest(&BagOfSIFT);
     SVMAnalysis SVMAnalysis(&BagOfSIFT);
+
 
 
 

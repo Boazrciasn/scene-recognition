@@ -17,7 +17,7 @@ Muhammet Pakyürek	S008284 Department of Electrical and Electronics
 #include "opencv2/xfeatures2d.hpp"
 #include "ImageReader.h"
 
-#define NUM_OF_QUADRANTS  4
+#define NUM_OF_QUADRANTS  16  // must be powers of two
 
 class BagOfSIFT {
 
