@@ -36,57 +36,98 @@ SVMAnalysis::SVMAnalysis(BagOfSIFT *BagOfSIFT) {
     cv::Mat tmpTrainLabels = BagOfSIFT->TrainLabels;
     cv::Mat tmpTestLabels = BagOfSIFT->TestLabels;
 
-    int trainWholeImgPart = tmpDataTrainDescriptor.rows/17;
-    int testWholeImgPart = tmpDataTestDescriptor.rows/17;
-    int startTrn = 0;//trainWholeImgPart;
-    int startTst = 0;//testWholeImgPart;
+    tmpTrainLabels = tmpTrainLabels(cv::Range(0,tmpDataTrainDescriptor.rows),cv::Range::all());
+    tmpTestLabels = tmpTestLabels(cv::Range(0,tmpDataTestDescriptor.rows),cv::Range::all());
 
-    std::cout<<"trainWholeImgPart "<<trainWholeImgPart<<std::endl;
-    std::cout<<"trainLabels "<<BagOfSIFT->dataTestDescriptor.rows<<std::endl;
+    std::cout<<"\n tmpDataTestDescriptor: "<<tmpDataTestDescriptor.rows<<std::endl;
+    std::cout<<"tmpDataTrainDescriptor: "<<tmpDataTrainDescriptor.rows<<std::endl;
+    std::cout<<"tmpTrainLabels: "<<tmpTrainLabels.rows<<std::endl;
+    std::cout<<"tmpTestLabels: "<<tmpTestLabels.rows<<std::endl;
+
+    std::cout<<std::endl;
+
+//    cv::Mat tmpDescriptor;
+//    cv::Mat tmpLabels;
+
+//    cv::FileStorage fsReader("Train_300_20_4.yml",cv::FileStorage::READ);
+//    if(!fsReader.isOpened())
+//        std::cout<<"file could not be opened\n";
+//    fsReader["descriptors"] >> tmpDescriptor;
+//    fsReader["labels"] >> tmpLabels;
+//    fsReader.release();
+
+//    std::cout<<"\n Before: "<<std::endl;
+//    std::cout<<"\n tmpLabels: "<<tmpLabels.rows<<std::endl;
+//    std::cout<<"\n tmpDescriptor: "<<tmpDescriptor.rows<<std::endl;
+
+//    int rowCount = tmpDescriptor.rows;
+//    tmpLabels = tmpLabels(cv::Range(rowCount/5,rowCount),cv::Range::all());
+//    tmpDescriptor = tmpDescriptor(cv::Range(rowCount/5,rowCount),cv::Range::all());
+
+//    std::cout<<"\n After: "<<std::endl;
+//    std::cout<<"\n tmpLabels: "<<tmpLabels.rows<<std::endl;
+//    std::cout<<"\n tmpDescriptor: "<<tmpDescriptor.rows<<std::endl;
 
 
-    this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
-    this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
-    this->trainLabels = tmpTrainLabels(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
-    this->testLabels = tmpTestLabels(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
+//    tmpDataTrainDescriptor.push_back(tmpDescriptor);
+//    tmpTrainLabels.push_back(tmpLabels);
+
+//    cv::FileStorage fsWriter("Train_300_20_20.yml",cv::FileStorage::WRITE);
+//    if(!fsWriter.isOpened())
+//        std::cout<<"file could not be opened\n";
+//    fsWriter<< "descriptors" << tmpDataTrainDescriptor;
+//    fsWriter<< "labels" << tmpTrainLabels;
+//    //release the file storage
+//    fsWriter.release();
+
+//    std::cout<<"Success!\n";
+//    return;
 
 
-    //Training Data type check
-    int nType = this->dataTrainDescriptor.depth();
-    if(nType != CV_32F)
-    {
-        dataTrainDescriptor.convertTo(dataTrainDescriptor, CV_32F);
-        dataTestDescriptor.convertTo(dataTestDescriptor, CV_32F);
+    int trainWholeImgPart = tmpDataTrainDescriptor.rows/(1 + NUM_OF_QUADRANTS);
+    int testWholeImgPart = tmpDataTestDescriptor.rows/(1 + NUM_OF_QUADRANTS);
+
+    std::cout<<"testWholeImgPart : "<<testWholeImgPart<<" "<<tmpTestLabels.rows<<std::endl;
+
+    for (int i = 0; i < (1 + NUM_OF_QUADRANTS); i++) {
+        this->C_value = 100 + i*20;
+        if(i > 15)
+            this->C_value = 140;
+//        else if(i > 0)
+//            this->C_value = 500;
+        int startTrn = i*trainWholeImgPart;
+        int startTst = i*testWholeImgPart;
+
+        this->dataTestDescriptor = tmpDataTestDescriptor(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
+        this->dataTrainDescriptor = tmpDataTrainDescriptor(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+        this->trainLabels = tmpTrainLabels(cv::Range(startTrn,startTrn + trainWholeImgPart),cv::Range::all());
+        this->testLabels = tmpTestLabels(cv::Range(startTst,startTst + testWholeImgPart),cv::Range::all());
+
+
+        //Training Data type check
+        int nType = this->dataTrainDescriptor.depth();
+        if(nType != CV_32F)
+        {
+            dataTrainDescriptor.convertTo(dataTrainDescriptor, CV_32F);
+            dataTestDescriptor.convertTo(dataTestDescriptor, CV_32F);
+        }
+
+        nType = this->trainLabels.depth();
+        if(nType != CV_32S)
+        {
+            this->trainLabels.convertTo(this->trainLabels, CV_32S);
+            this->trainLabels.convertTo(this->trainLabels, CV_32S);
+        }
+
+        SVMAnalysis::SVMTrainer();
+        SVMAnalysis::Evaluation();
+
+        this->Total_Response.release();
+//        this->C_value = 140;
     }
 
-    nType = this->trainLabels.depth();
-    if(nType != CV_32S)
-    {
-        this->trainLabels.convertTo(this->trainLabels, CV_32S);
-        this->trainLabels.convertTo(this->trainLabels, CV_32S);
-    }
-
-//    // NM get quadrants
-//    for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
-//        dataTestQuadrantDescriptor[i].convertTo(dataTestQuadrantDescriptor[i], CV_32F);
-//        dataTrainQuadrantDescriptor[i].convertTo(dataTrainQuadrantDescriptor[i], CV_32F);
-//    }
-
-//    // NM Add all Data
-//    cv::Mat tmpTestLabels = testLabels;
-//    for (int i = 0; i < NUM_OF_QUADRANTS; i++) {
-////        dataTrainDescriptor.push_back(dataTrainQuadrantDescriptor[i]);
-//        dataTestDescriptor.push_back(dataTestQuadrantDescriptor[i]);
-//        testLabels.push_back(tmpTestLabels);
-//    }
-
-
-
-
-    SVMAnalysis::SVMTrainer();
-
-    SVMAnalysis::Evaluation();
-
+    Evaluator evaluator(this->Consensus,tmpTestLabels,"SVM");
+//    std::cout<<"classification rate : "<<evaluator.getAccuracy()<< "%"<<std::endl;
 }
 
 
@@ -108,8 +149,11 @@ void SVMAnalysis::Evaluation() {
     }
 
     std::cout<<"counter classification rate : "<<count/this->testLabels.rows*100<< "%"<<std::endl;
-    Evaluator evaluator(this->Consensus,this->testLabels,"SVM");
+//    Evaluator evaluator(this->Consensus,this->testLabels,"SVM");
 //    std::cout<<"classification rate : "<<evaluator.getAccuracy()<< "%"<<std::endl;
+
+//    this->allQuadrabtsResponse.push_back();
+    std::cout<<"\n Consensus: "<<this->Consensus.rows<<"\n"<<std::endl;
 
 }
 
@@ -144,8 +188,6 @@ void SVMAnalysis::SVMTester() {
 
     temp = resultsMat.t();
     this->Total_Response.push_back(temp);
-
-
 }
 
 
@@ -158,7 +200,7 @@ void SVMAnalysis::SVMTrainer() {
 
         labelstring= std::to_string(j);
         std::string FileName("SVM_train_"+ labelstring);
-        currentSVMlabels= SVMAnalysis::SVMDataCreate1vsALL(j)  ;
+        currentSVMlabels= SVMAnalysis::SVMDataCreate1vsALL(j);
         CalculateSVM(currentSVMlabels, FileName);
         SVMAnalysis::SVMTester();
 
@@ -172,11 +214,11 @@ void SVMAnalysis::CalculateSVM(cv::Mat label, std::string FileName) {
 
 
     this->svm_obj = cv::ml::SVM::create();
-    this->svm_obj->setC(300);
+    this->svm_obj->setC(this->C_value);
     setSVMParams(label, true );
     cv::Ptr<cv::ml::TrainData> tData = cv::ml::TrainData::create(this->dataTrainDescriptor, cv::ml::ROW_SAMPLE, label);
     this->svm_obj->train(tData);
-    this->svm_obj->save(FileName);
+//    this->svm_obj->save(FileName);
 }
 
 void SVMAnalysis::setSVMParams(const cv::Mat &responses, bool balanceClasses) {

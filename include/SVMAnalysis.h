@@ -36,6 +36,8 @@ private:
     cv::Mat1i Consensus; // major vote container
 
 
+    // NM
+    int C_value = 90;
     int getMinIndex(cv::Mat1f mat1);
     cv::Mat SVMDataCreate1vsALL(int nClass); //changes labels according to given range considering 1vsALL configuration
     void setSVMParams(const cv::Mat& responses, bool balanceClasses );

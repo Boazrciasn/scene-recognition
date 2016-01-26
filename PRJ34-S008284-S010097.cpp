@@ -21,9 +21,9 @@ int main() {
 
     ImageReader ImageRead;
 
-    TinyImages TinyImages(&ImageRead);
+//    TinyImages TinyImages(&ImageRead);
     BagOfSIFT BagOfSIFT(&ImageRead);
-    KNNTest KNNTest(&BagOfSIFT);
+//    KNNTest KNNTest(&BagOfSIFT);
     SVMAnalysis SVMAnalysis(&BagOfSIFT);
 
 

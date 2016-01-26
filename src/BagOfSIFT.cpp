@@ -37,7 +37,7 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
 
 
     this->dictionarysize = 300;
-    this->StepSize = 10;
+    this->StepSize = 20;
     this->StepSizeString = std::to_string(this->StepSize);
     this->DictionarySizeString = std::to_string(this->dictionarysize);
     this->FileName = "dictionary_" + this->DictionarySizeString +"_"+ this->StepSizeString + ".yml";
@@ -51,10 +51,11 @@ BagOfSIFT::BagOfSIFT(ImageReader *DataSet) {
     BagOfSIFT::loadDataFile(this->TrainFileName,this->dataTrainDescriptor,this->TrainLabels);
     BagOfSIFT::loadDataFile(this->TestFileName,this->dataTestDescriptor,this->TestLabels);
 
-    for (int i = 0; i < NUM_OF_QUADRANTS + 1; i++) {
-        this->TestLabels.push_back(DataSet->Test_Labels);
-        this->TrainLabels.push_back(DataSet->Train_Labels);
-    }
+    if(NUM_OF_QUADRANTS == 16)
+        for (int i = 0; i < NUM_OF_QUADRANTS + 1; i++) {
+            this->TestLabels.push_back(DataSet->Test_Labels);
+            this->TrainLabels.push_back(DataSet->Train_Labels);
+        }
 
 
     //Store the vocabulary
